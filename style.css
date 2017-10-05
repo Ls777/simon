@@ -1,0 +1,225 @@
+body {
+  background-color: #111316;
+  overflow: hidden; 
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+:focus {
+  outline-style:none;
+  box-shadow:none;
+  border-color:transparent;
+}
+
+.circle {
+  pointer-events: none;
+  background: #3F9;
+  position: absolute;
+  width: 10vmin;
+  height: 10vmin;
+  top: 50%;
+  left: 50%;
+  margin-left: -5vmin;
+  margin-top: -5vmin;
+  border-radius: 50%;
+  visibility: hidden;
+}
+
+.test-controls {
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.container {
+  font-family: 'Amaranth', sans-serif;
+  text-align: center;
+  font-size: 9vmin;
+  color:#3F9;
+  position: absolute;
+  width: 40vmin;
+  height: 40vmin;
+  top: 50%;
+  left: 50%;
+  margin-left: -20vmin;
+  margin-top: -20vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.container small {
+  font-size: 6vmin;
+  line-height: 0vmin;
+  margin-bottom: -1vmin;
+  margin-left: 1vmin;
+  pointer-events:none;
+}
+
+.container strong {
+  display: inline;
+  font-size: 24vmin;
+}
+
+.deadzone {
+  /*background-color: #333;*/
+  position: absolute;
+  width: 20vmin;
+  height: 20vmin;
+  top: 50%;
+  left: 50%;
+  border-radius: 10vmin;
+  margin-left: -10vmin;
+  margin-top: -10vmin;
+}
+
+#easy {
+  cursor: pointer;
+  margin-left: 1vmin;
+  pointer-events: auto;
+}
+
+#easy:hover {
+  color: #3F9;
+}
+
+#hard {
+  cursor: pointer;
+  margin-left: -1vmin;
+  pointer-events: auto;
+}
+
+#hard:hover {
+  color: #F39;
+}
+
+.startScreen {
+  font-family: 'Amaranth', sans-serif;
+  text-align: center;
+  font-size: 3vmin;
+  color:#FFF;
+  position: absolute;
+  width: 40vmin;
+  height: 40vmin;
+  top: 50%;
+  left: 50%;
+  margin-left: -20vmin;
+  margin-top: -20vmin;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  visibility: default;
+}
+
+
+
+.startScreen h1 {
+  font-size: 8vmin;
+}
+
+.flex-item {
+  margin:0;
+}
+
+#LsLogo {
+  width: 40vmin;
+  fill: #3F9;
+  animation:5s logoAnimation infinite;
+  margin-right: 20px;
+
+}
+
+@keyframes logoAnimation{    
+ from{fill: #3F9}
+  10%{fill: #3F9}
+  25%{fill: #F39}
+  35%{fill: #F39}
+  50%{fill: #39F}
+  60%{fill: #39F}
+  75%{fill: #FE5}
+  85%{fill: #FE5}
+   to{fill: #3F9}
+}
+
+
+
+
+
+#svgMain{
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0%;
+  left: 0%;
+  fill: none; 
+  stroke-width: 30px;
+  stroke: white;
+  transform-origin: center;
+  stroke-linejoin: square;
+  /*pointer-events: none;*/
+}
+
+.arcOL {
+  stroke-width: 2px;
+  pointer-events: fill;
+  pointer-events: bounding-box;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+
+
+#arc0 {transition: stroke 0.3s; transform-origin: right bottom;}
+#arc1 {transition: stroke 0.3s; transform-origin: left bottom;}
+#arc2 {transition: stroke 0.3s; transform-origin: left top;}
+#arc3 {transition: stroke 0.3s; transform-origin: right top;}
+
+#arc0, #arcOL0, #arcFX0, #arcFXouter0 {stroke: #3F9; }
+#arc1, #arcOL1, #arcFX1, #arcFXouter1 {stroke: #F39; }
+#arc2, #arcOL2, #arcFX2, #arcFXouter2 {stroke: #39F; }
+#arc3, #arcOL3, #arcFX3, #arcFXouter3 {stroke: #FE5; }
+
+
+.hover, .active {
+  transition: stroke 0s !important;
+}
+
+#arc0.hover {stroke: #1D6;}
+#arc1.hover {stroke: #D16;}
+#arc2.hover {stroke: #16D;}
+#arc3.hover {stroke: #DC3;}
+
+.active{
+  stroke: white !important;
+}
+
+
+
+.reset {
+  position: absolute;
+  margin: 0;
+  width: 4vmin;
+  height: 4vmin;
+  left: -17vmin;
+}
+
+/*.arc {
+  stroke: white !important;
+}*/

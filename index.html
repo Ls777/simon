@@ -1,0 +1,85 @@
+<link href="https://fonts.googleapis.com/css?family=Amaranth:700i" rel="stylesheet"> 
+<link rel="stylesheet" type="text/css" href="style.css">
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<script type='text/javascript'
+  src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.1.0/anime.min.js"></script>
+<script type='text/javascript'
+  src="simon.js"></script>
+
+
+
+<div class="circle"></div>
+
+
+<svg id="svgMain" viewBox="-150 -150 300 300">
+  <filter id="glow"  x="-25%" y="-25%" width="150%" height="150%">
+    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+    <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+
+  <path id="arc0" class="arc" d="M -75 0 a 75 75.5, 0, 0, 1, 75.5 -75"/>
+  <path id="arc1" class="arc" d="M 0 -75 a 75 75.5, 0, 0, 1, 75 75.5"/>
+  <path id="arc2" class="arc" d="M 75 0 a 75.5 75, 0, 0, 1, -75.5 75"/>
+  <path id="arc3" class="arc" d="M 0 75 a 75 75.5, 0, 0, 1, -75 -75.5"/>
+  <path id="arcFX0" class="arcFX" d="M -75 0 a 75 75.5, 0, 0, 1, 75.5 -75"/>
+  <path id="arcFX1" class="arcFX" d="M 0 -75 a 75 75.5, 0, 0, 1, 75 75.5"/>
+  <path id="arcFX2" class="arcFX" d="M 75 0 a 75.5 75, 0, 0, 1, -75.5 75"/>
+  <path id="arcFX3" class="arcFX" d="M 0 75 a 75 75.5, 0, 0, 1, -75 -75.5"/>
+  <path id="arcFXouter0" class="arcFXouter" d="M -75 0 a 75 75.5, 0, 0, 1, 75.5 -75"/>
+  <path id="arcFXouter1" class="arcFXouter" d="M 0 -75 a 75 75.5, 0, 0, 1, 75 75.5"/>
+  <path id="arcFXouter2" class="arcFXouter" d="M 75 0 a 75.5 75, 0, 0, 1, -75.5 75"/>
+  <path id="arcFXouter3" class="arcFXouter" d="M 0 75 a 75 75.5, 0, 0, 1, -75 -75.5"/>
+  <path id="arcOL0" class="arcOL" d="M -60.5 -0.5 
+        l -29 0 a 89 89, 0, 0, 1, 89 -89
+        l 0 29 a 61 61, 0, 0, 0, -60 60.5"/>
+  <path id="arcOL1" class="arcOL" d="M 0.5 -60.5 
+        l 0 -29 a 89 89, 0, 0, 1, 89 89
+        l -29 0 a 61 61, 0, 0, 0, -60.5 -60"/>
+  <path id="arcOL2" class="arcOL" d="M 60.5 0.5 
+        l 29 0 a 89 89, 0, 0, 1, -89 89
+        l 0 -29 a 61 61, 0, 0, 0, 60 -60.5"  />
+  <path id="arcOL3" class="arcOL" d="M -0.5 60.5 
+        l 0 29 a 89 89, 0, 0, 1, -89 -89 
+        l 29 0 a 61 61, 0, 0, 0, 60.5 60"/>
+</svg>
+
+<div class="deadzone">
+
+</div>
+
+<div id="chooseDifficulty" class="container">
+  <div id="easy" class="flex-item">Easy</div>
+  <small class="flex-item">or</small>
+  <div id="hard" class="flex-item">Hard</div>
+</div>
+
+
+
+<div class="startScreen">
+  <svg class="flex-item" id="LsLogo" viewBox="0 0 100 100">
+  <path d="M16.3,4.7c7.2,0,13.9,0,20.9,0C33,28.8,28.8,52.8,24.5,77.1c11.9,0,23.5,0,35.5,0c-1.1,6.3-2.2,12.2-3.2,18.3 c-18.8,0-37.5,0-56.4,0C5.7,65,11,34.9,16.3,4.7z"/> <path d="M68.5,94.2c-2.7-5.9-5.3-11.4-8-17.2c1.6,0,2.8,0.1,4,0c1.6-0.1,3.2-0.3,4.8-0.7c0.9-0.2,1.8-0.7,2.5-1.2 c3.1-2.2,3.2-6.2,0.1-8.3c-1.7-1.1-3.8-1.8-5.7-2.6c-3.2-1.3-6.6-2.2-9.7-3.7c-9.8-4.8-12.8-15.2-7.3-24.7 c2.6-4.6,6.5-7.6,11.3-9.6c10.2-4.2,20.3-4.2,30.5,0.1c2.8,1.2,5.4,2.9,7.5,5.1c0.4,0.4,0.8,0.9,1.4,1.6 c-4.2,3.6-8.4,7.1-12.6,10.7c-0.4-0.4-0.8-0.7-1.1-1c-4.4-4.5-9.8-5.6-15.8-4.2c-1.5,0.3-2.8,1-3.8,2.2c-1.8,2.1-1.6,5.2,0.8,6.7 c1.5,0.9,3.1,1.5,4.8,2.1c2.6,0.9,5.4,1.6,8,2.6c1.8,0.7,3.5,1.6,5.2,2.6c6.5,4,8.9,10,8,17.4C91.7,82,85.9,88.6,76.6,92 C74,93,71.3,93.5,68.5,94.2z"/>
+  </svg>
+  <div>
+    <h1 class="flex-item">S<small>IMON</small></h1>
+  <div class="flex-item">click to play</div>
+  </div>
+</div>
+
+
+<div class="test-controls hidden">
+  <div class="line player"> <input class="progress" step=".001" type="range" min="0" max="100" value="0"> </div>
+  <div class="line player"> <button class="play">Play</button> <button class="pause">Pause</button> </div>
+</div>
+
+
+
+
+<svg class="reset" id="LsLogo" viewBox="0 0 100 100">
+  <path d="M16.3,4.7c7.2,0,13.9,0,20.9,0C33,28.8,28.8,52.8,24.5,77.1c11.9,0,23.5,0,35.5,0c-1.1,6.3-2.2,12.2-3.2,18.3 c-18.8,0-37.5,0-56.4,0C5.7,65,11,34.9,16.3,4.7z"/> <path d="M68.5,94.2c-2.7-5.9-5.3-11.4-8-17.2c1.6,0,2.8,0.1,4,0c1.6-0.1,3.2-0.3,4.8-0.7c0.9-0.2,1.8-0.7,2.5-1.2 c3.1-2.2,3.2-6.2,0.1-8.3c-1.7-1.1-3.8-1.8-5.7-2.6c-3.2-1.3-6.6-2.2-9.7-3.7c-9.8-4.8-12.8-15.2-7.3-24.7 c2.6-4.6,6.5-7.6,11.3-9.6c10.2-4.2,20.3-4.2,30.5,0.1c2.8,1.2,5.4,2.9,7.5,5.1c0.4,0.4,0.8,0.9,1.4,1.6 c-4.2,3.6-8.4,7.1-12.6,10.7c-0.4-0.4-0.8-0.7-1.1-1c-4.4-4.5-9.8-5.6-15.8-4.2c-1.5,0.3-2.8,1-3.8,2.2c-1.8,2.1-1.6,5.2,0.8,6.7 c1.5,0.9,3.1,1.5,4.8,2.1c2.6,0.9,5.4,1.6,8,2.6c1.8,0.7,3.5,1.6,5.2,2.6c6.5,4,8.9,10,8,17.4C91.7,82,85.9,88.6,76.6,92 C74,93,71.3,93.5,68.5,94.2z"/>
+</svg>
