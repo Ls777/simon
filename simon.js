@@ -8,9 +8,7 @@ $(function() {
   
   var colors =  ["#3F9", "#F39", "#39F", "#FE5"]
   
-  var chooseDifficultyString = '<div id="easy" class="flex-item">Easy</div>' +
-  '<small class="flex-item">or</small>' +
-  '<div id="hard" class="flex-item">Hard</div>'
+  var chooseDifficultyString = '<div id="easy" class="flex-item">Easy</div><small class="flex-item">or</small><div id="hard" class="flex-item">Hard</div>'
   
 
   var arcEntrance = {  
@@ -47,6 +45,13 @@ $(function() {
     duration: 1,
   }
   
+  var arcOutlineShow = {
+    targets: '.arcOL',
+    easing: 'easeOutQuad',
+    strokeWidth: [0,1],
+    duration: 1,
+  }
+  
  /* var arcOutlineHide = {  
     targets: '.arcOL',
     easing: 'easeOutQuad',
@@ -60,7 +65,7 @@ $(function() {
   var textEntrance = {
     easing: 'easeOutCirc',
     targets: '.container',
-    color: {value:"#FFF",delay: 200},
+    color: {value:[colors[0],"#FFF"],delay: 200},
     opacity: 1,
     scale: [0,1],
     skewY: ["-60deg","-5deg"],
@@ -76,12 +81,11 @@ $(function() {
     easing: 'easeOutCirc',
     targets: '.circle',
     backgroundColor: {value:"#FFF",delay: 200},
-    opacity: {value:0, delay: 50, duration: 100},
+    opacity: {value:[1,0], delay: 50, duration: 100},
     scale: [0,3],
     duration: 1000,
     begin: function(anim) {
       $(".circle").css("visibility", "visible");
-
     }
   }
   
@@ -97,7 +101,7 @@ $(function() {
    var arcFadeExplode = {  
     targets: ".arc",
     easing: 'easeOutQuart',
-    scale: [1, 0.8],
+    scale: [1, 0.6],
     strokeWidth:  2,
     duration: 1000,
     rotate: [0,-90],
@@ -134,6 +138,14 @@ $(function() {
     strokeWidth: [1, 8],
     duration: 400,
     strokeDashoffset: [0, (-1) * anime.setDashoffset],
+  }
+  
+  var arcInnerHighlightRotateReset  = {
+    targets: '#arcFX0',
+    easing: 'easeOutCubic',
+    scale: [.73, .7],
+    strokeWidth: [0, 0],
+    duration: 1,
   }
   
   var arcInnerHighlightRotateOut = {
@@ -196,10 +208,6 @@ $(function() {
   introSeq.autoplay = false;
   arcOutlineEntrance.offset = "-=1400"
   introSeq.add([arcHighlightEffectOut, arcHighlightEffectIn, arcOutlineEntrance]);
-  arcHighlightEffectOut.offset = "-=900"
-  textEntrance.offset = "-=900"
-  circleEntranceFx.offset = "-=1200"
-  introSeq.add([textEntrance, circleEntranceFx])
   
   var startAnim = anime.timeline();
   startAnim.autoplay = false;
@@ -233,37 +241,48 @@ $(function() {
     var level;
     var moves = [];
     var currentMove;
-    var hard;
+    var difficulty;
     var self = this
     
-    this.begin = function() {
-      highlightArc(0,400);
-      highlightArc(1,400);
-      highlightArc(2,400);
-      highlightArc(3,400);
-      anime(arcOutlineHide);
-      setTimeout(function() {
-        self.aiTurn()
-      }, 800)
+    this.begin = function(mode) {
       //moves = [0,3,2,1,2,2,2,3,1,2,3,2,1,0,3,0,2,3,1]
-      moves = [2,3,2,1,0,3,0,2,3,1]
-      currentMove = 0;
-      moves = [0,1]
+      //moves = [2,3,2,1,0,3,0,2,3,1]
+      //moves = [0,1]
       moves = [];
-      //$(".container").css("visibility", "visible");
+      currentMove = 0;
+      difficulty = mode;
+      console.log(difficulty);
+      startAnim.run = function(anim) {
+        if (anim.currentTime > 300) {
+          $(".container").html("<strong>" + (moves.length + 1) + "</strong>");
+        }
+      }
+      startAnim.complete = function() {
+        anime(arcOutlineHide);
+        highlightArc(0,400);
+        highlightArc(1,400);
+        highlightArc(2,400);
+        highlightArc(3,400);
+        setTimeout(function() {
+          self.aiTurn()
+        }, 800)
+      };
+      startAnim.restart();
     }
     
-    this.aiTurn = function() {
-      console.log("turn started")
-      moves.push(anime.random(0, 3))
+    this.aiTurn = function(restart) {
+      anime(arcOutlineHide);
+      if(!restart) {
+        moves.push(anime.random(0, 3))
+      }
       level = moves.length;
       let currentAiMove = 0;
-      let delay = 1000 - (level * 42)
+      let delay = level < 15 ? 1000 - (level * 50) : 250
       function loop(){
         if (currentAiMove < moves.length) {
           highlightArc(moves[currentAiMove], delay * 0.9);
           if (currentAiMove == 0) {
-            innnerArcHighlight.spinIn(moves[currentAiMove], delay / 2);
+            innnerArcHighlight.staticIn(moves[currentAiMove], delay / 2);
           } else {
             innnerArcHighlight.highlight(moves[currentAiMove], delay / 2)
           }
@@ -283,8 +302,17 @@ $(function() {
         }
       }
       loop();
-
-      
+    }
+    
+    this.aiTurnRestart = function() {
+      anime(containerOut);
+      console.log('restart')
+      setTimeout(function() {
+        anime(arcEntrance)
+        innerDisplay.transitionlvl(level)
+        console.log("FIN")
+        setTimeout(function(){self.aiTurn(true)}, 1000)
+      }, 600)
     }
     
     this.playerTurn = function() {
@@ -295,22 +323,28 @@ $(function() {
     this.playerMove = function(arc) {
       if (arc != moves[currentMove]) {
         console.log("WRONG")
-      } else {
-        console.log("right");
-      }
-      
-      currentMove++;
-      if (currentMove == level) {
-        anime(arcFadeAway);
+        anime(arcFadeExplode);
+        anime(arcOutlineShow);
         anime(containerOut);
         innnerArcHighlight.fade();
         removeArcClickHandlers();
         setTimeout(function() {
-          anime(arcEntrance)
-          innerDisplay.transition(level + 1)
-          console.log("FIN")
-          setTimeout(self.aiTurn, 900)
-        }, 600)
+            innerDisplay.wrongMove(difficulty);
+        }, 1000)
+      } else {
+        currentMove++;
+        if (currentMove == level) {
+          anime(arcFadeAway);
+          anime(containerOut);
+          innnerArcHighlight.fade();
+          removeArcClickHandlers();
+          setTimeout(function() {
+            anime(arcEntrance)
+            innerDisplay.transitionlvl(level + 1)
+            console.log("FIN")
+            setTimeout(self.aiTurn, 900)
+          }, 600)
+        }
       }
     }
     
@@ -369,20 +403,70 @@ $(function() {
   
   function InnerDisplay() {
     var currentHTML = chooseDifficultyString;
-    console.log("hm");
+    var setOnce = true;
+    var self = this;
+
+    this.chooseDifficulty = function() {
+      //$(".container").html(chooseDifficultyString);
+      startScreenOut.reset();
+      startScreenOut.restart();
+      introSeq.reset();
+      introSeq.restart();
+      setTimeout(function(){self.transition(chooseDifficultyString)}, 1000);
+      introSeq.complete = function() {
+        $("#easy, #hard").click(function () {
+          $("#easy, #hard").off();
+          simon.begin(this.id);
+        })
+      }
+    }
     
-    this.transition = function(string) {
-      console.log("hmmm")
-      textEntrance.run = function(anim) {
-        if (anim.currentTime > 200) {
-          console.log("hmmmmmm")
-          $(".container").html("<strong>" + string + "</strong>");
+    this.transition = function(string, shrinkText) {
+      /*textEntrance.run = function(anim) {
+        if (anim.currentTime > 200 && setOnce) {
+          $(".container").html(string);
+          setOnce = false;
         }
       }
-      console.log("hmmmmmmmmmmmmmmmmmm")
-      anime(textEntrance)
+      textEntrance.complete = function() {
+        setOnce = true;
+      }*/
+      if(shrinkText) {
+        $(".container").addClass('containerSmallerFont')
+      } else {
+        $(".container").removeClass('containerSmallerFont')
+      }
+      $(".container").html(string);
       anime(circleEntranceFx)
+      anime(textEntrance)
       anime(arcHighlightEffectIn)
+    }
+    
+    this.transitionlvl = function(string) {
+      self.transition("<strong>" + string + "</strong>")
+    }
+    
+    this.wrongMove = function(difficulty) {
+      $(".container").addClass('containerSmallerFont')
+      self.transition('<h2 class="flex-item">Wrong!</h2><div id="easy" class="flex-item">' +
+              (difficulty == 'easy' ? 'Continue' : 'Restart') +
+            '</div><small class="flex-item">or</small>' +
+            '<div id="hard" class="flex-item">Reset</div>', true)
+      setTimeout(function() {
+        $("#easy, #hard").click(function () {
+          console.log("click")
+          $("#easy, #hard").off();
+          if (this.id == "easy") {
+            if (difficulty == 'easy') {
+              simon.aiTurnRestart();
+            } else {
+              simon.begin(this.id)
+            }
+          } else {
+            reset();
+          }
+        })
+      }, 1000)
     }
   }
   
@@ -426,9 +510,14 @@ $(function() {
       arcInnerHighlightRotateActive = anime(temp);
     }
     
-    this.spinIn = function(arc) {
-      baseRots += 1;
-      self.highlight(arc);
+    this.staticIn = function(arc, duration) {
+      baseRots = 0
+      if (typeof arcInnerHighlightRotateActive !== 'undefined') {
+        arcInnerHighlightRotateActive.pause();
+      }
+      arcInnerHighlightRotateReset.rotation = arc * 90
+      anime(arcInnerHighlightRotateReset);
+      self.highlight(arc, duration);
     }
     
     this.fade = function() {
@@ -456,30 +545,6 @@ $(function() {
   }
   
   function chooseDifficulty() {
-    $(".container").html(chooseDifficultyString);
-    startScreenOut.reset();
-    startScreenOut.restart()
-    introSeq.reset();
-    introSeq.restart();
-    introSeq.complete = function() {
-      $("#easy, #hard").click(function () {
-        $("#easy, #hard").off();
-        
-        startAnim.run = function(anim) {
-          if (anim.currentTime > 300) {
-            $(".container").html("<strong>1</strong>");
-          }
-        }
-        startAnim.complete = function() {
-          //addArcClickHandlers();
-          simon.begin();
-        };
-        startAnim.restart();
-      })
-    }
-  }
-  
-  function transitionDisplay(string) {
     
   }
 
@@ -506,7 +571,7 @@ $(function() {
   }
   
   function reset() {
-    $(".startScreen").one("click", chooseDifficulty)
+    $(".startScreen").one("click", innerDisplay.chooseDifficulty)
     $(".startScreen").css("visibility", "visible"); 
     $(".container").css("visibility", "hidden"); 
     startScreenOut.pause();
@@ -524,7 +589,7 @@ $(function() {
   
   
   debugAnim(arcHighlightEffectOut)
-  $(".startScreen").one("click", chooseDifficulty)
+  $(".startScreen").one("click", innerDisplay.chooseDifficulty)
   $(".reset").click(function(){reset()})
   
   
