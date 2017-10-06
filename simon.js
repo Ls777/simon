@@ -23,7 +23,6 @@ $(function() {
     delay: function(el, i, l) {
       return i * 100;
     },
-    autoplay: true
   }
   
   var arcOutlineEntrance = {  
@@ -36,6 +35,11 @@ $(function() {
     delay: function(el, i, l) {return i * 100},
     rotate: {value: [180,0,90], delay: 0, duration: 1200},
     autoplay: true
+  }
+
+  var arcOutlineEntranceWin = Object.assign({}, arcOutlineEntrance);
+  arcOutlineEntranceWin.complete = function() {
+    anime(arcOutlineWin);
   }
   
   var arcOutlineHide = {
@@ -51,14 +55,6 @@ $(function() {
     strokeWidth: [0,1],
     duration: 1,
   }
-  
- /* var arcOutlineHide = {  
-    targets: '.arcOL',
-    easing: 'easeOutQuad',
-    strokeWidth: 0,
-    duration: 100,
-    autoplay: false
-  }*/
   
   
   
@@ -107,17 +103,60 @@ $(function() {
     rotate: [0,-90],
     strokeDashoffset:  [0, 10, anime.setDashoffset],
   }
-  
-  /*var arcHighlightFx = anime({  
-    targets: "#arcFXouter1",
-    easing: 'easeOutCirc',
-    scale: [1.2,1.3],
-    stroke: ["#FFFFFF", colors[1]],
-    opacity: [1,0],
-    strokeWidth:  [1,10],
+
+  var arcWinIntro = {  
+    targets: ".arcFXouter",
+    easing: 'linear',
+    scale: 3.9,
+    opacity: [1,1],
+    strokeWidth:  100,
     duration: 1000,
-    autoplay: false
-  })*/
+    rotate: 36,
+    begin: function() {
+      anime(arcHighlightWin);
+    },
+    complete: function() {
+      anime(arcWin);
+      anime(arcOutlineEntranceWin);
+    }
+  }
+
+  var arcHighlightWin = {  
+    targets: ".arc",
+    easing: 'linear',
+    scale: [.7,.7],
+    strokeWidth:  [2,2],
+    duration: 1000,
+    rotate: 360,
+    strokeDashoffset:  [20, 20],
+    //strokeDashoffset:
+    //  {value: [20, anime.setDashoffset, 20],
+    //   delay: function(el, i, l){return i * 200}},
+    loop: true,
+  }
+  
+   var arcOutlineWin = {  
+    targets: '.arcOL',
+    easing: 'linear',
+    scale: 1,
+    strokeWidth:  1,
+    //duration: function(el, i, l) {return 1000 - (i * 100)},
+    rotate: {value: [360,0,], delay: 0, duration: 5000},
+    autoplay: true,
+    loop: true,
+  }
+
+  var arcWin = {  
+    targets: ".arcFXouter",
+    easing: 'linear',
+    opacity: [1,1],
+    scale: [3.9,3.9],
+    strokeWidth:  [100,100],
+    duration: 10000,
+    rotate: [36,396],
+    autoplay: true,
+    loop: true
+  }
   
   
   var arcHighlightFx = {  
@@ -239,6 +278,7 @@ $(function() {
   function Simon() {
     var mode;
     var level;
+    var levelMax = 1;
     var moves = [];
     var currentMove;
     var difficulty;
@@ -333,7 +373,14 @@ $(function() {
         }, 1000)
       } else {
         currentMove++;
-        if (currentMove == level) {
+        if (currentMove == levelMax) {
+          removeArcClickHandlers();
+          anime(arcWinIntro);
+          innerDisplay.transition('<div class="flex-item">You</div>' + 
+            '<div class="flex-item">Won!</div>' +
+            '<small class="flex-item">reset</small>');
+
+        } else if (currentMove == level) {
           anime(arcFadeAway);
           anime(containerOut);
           innnerArcHighlight.fade();
@@ -422,15 +469,6 @@ $(function() {
     }
     
     this.transition = function(string, shrinkText) {
-      /*textEntrance.run = function(anim) {
-        if (anim.currentTime > 200 && setOnce) {
-          $(".container").html(string);
-          setOnce = false;
-        }
-      }
-      textEntrance.complete = function() {
-        setOnce = true;
-      }*/
       if(shrinkText) {
         $(".container").addClass('containerSmallerFont')
       } else {
