@@ -61,10 +61,6 @@ body {
   pointer-events: none;
 }
 
-.containerSmallerFont {
-  font-size: 8vmin;
-}
-
 .container small {
   font-size: 6vmin;
   line-height: 0vmin;
@@ -78,12 +74,17 @@ body {
   font-size: 24vmin;
 }
 
-.container h2 {
+.container h2, .container h3 {
   display: inline;
   font-size: 7vmin;
   color: #FE5;
   margin-top: 3vmin;
   line-height: 5vmin;
+}
+
+.container h3 {
+  font-size: 8vmin;
+  margin-bottom: 4vmin;
 }
 
 .deadzone {

@@ -104,34 +104,41 @@ $(function() {
     strokeDashoffset:  [0, 10, anime.setDashoffset],
   }
 
-  var arcWinIntro = {  
+  var arcFxOuterWinIntro = {  
     targets: ".arcFXouter",
-    easing: 'linear',
-    scale: 3.9,
+    easing: 'easeInSine',
+    scale: [3.9,3.9],
     opacity: [1,1],
-    strokeWidth:  100,
+    strokeWidth:  [100,100],
     duration: 1000,
     rotate: 36,
-    begin: function() {
-      anime(arcHighlightWin);
-    },
+    strokeDashoffset:  [anime.setDashoffset, 0],
     complete: function() {
-      anime(arcWin);
-      anime(arcOutlineEntranceWin);
+      anime(arcFxOuterWin);
     }
   }
 
-  var arcHighlightWin = {  
+  var arcWinIntro = {  
+    targets: ".arc",
+    easing: 'easeInSine',
+    scale: .7,
+    strokeWidth:  2,
+    duration: 1000,
+    rotate: {value: [0,90], easing: 'easeInQuart'},
+    strokeDashoffset:  20,
+    complete: function() {
+      anime(arcWin)
+    }
+  }
+  
+  var arcWin = {  
     targets: ".arc",
     easing: 'linear',
     scale: [.7,.7],
     strokeWidth:  [2,2],
     duration: 1000,
-    rotate: 360,
+    rotate: 450,
     strokeDashoffset:  [20, 20],
-    //strokeDashoffset:
-    //  {value: [20, anime.setDashoffset, 20],
-    //   delay: function(el, i, l){return i * 200}},
     loop: true,
   }
   
@@ -146,7 +153,7 @@ $(function() {
     loop: true,
   }
 
-  var arcWin = {  
+  var arcFxOuterWin = {  
     targets: ".arcFXouter",
     easing: 'linear',
     opacity: [1,1],
@@ -278,7 +285,7 @@ $(function() {
   function Simon() {
     var mode;
     var level;
-    var levelMax = 1;
+    var levelMax = 3;
     var moves = [];
     var currentMove;
     var difficulty;
@@ -375,10 +382,24 @@ $(function() {
         currentMove++;
         if (currentMove == levelMax) {
           removeArcClickHandlers();
+          anime(arcOutlineEntranceWin);
           anime(arcWinIntro);
-          innerDisplay.transition('<div class="flex-item">You</div>' + 
-            '<div class="flex-item">Won!</div>' +
-            '<small class="flex-item">reset</small>');
+          innnerArcHighlight.fade();
+          setTimeout(function(){
+            anime.remove(".arcFXouter");
+            innerDisplay.transition('<h3 class="flex-item">Winner!</h3>' + 
+            //'<h2 class="flex-item">&nbsp</h2>' +
+            '<small id="hard" class="flex-item">reset</small>');
+            anime.remove(".arcFX");
+            anime(arcFxOuterWinIntro);
+            setTimeout(function() {
+              $("#hard").click(function () {
+                $("#hard").off();
+                reset();
+              })
+            }, 1000)
+          }, 700);
+
 
         } else if (currentMove == level) {
           anime(arcFadeAway);
@@ -395,6 +416,10 @@ $(function() {
       }
     }
     
+    this.isLastMove = function() {
+      return ((currentMove + 1) == levelMax);
+    }
+    
     
     
   }
@@ -409,8 +434,10 @@ $(function() {
   function addArcClickHandlers() {
     $('.arcOL').addClass('clickable')
     $('.arcOL').click(function () {
-      highlightArc(this.id.slice(-1), 200);
-      innnerArcHighlight.highlight(this.id.slice(-1))
+      if(!simon.isLastMove()) {
+        highlightArc(this.id.slice(-1), 200);
+        innnerArcHighlight.highlight(this.id.slice(-1))
+      }
       simon.playerMove(this.id.slice(-1));
     })
     $('.arcOL').hover(function () {
@@ -440,9 +467,11 @@ $(function() {
           break;
       }
       if (arc != -1) {
-        highlightArc(arc, 200);
-        innnerArcHighlight.highlight(arc)
-        innnerArcHighlight.fadeKeypress();
+        if(!simon.isLastMove()) {
+          highlightArc(arc, 200);
+          innnerArcHighlight.highlight(arc)
+          innnerArcHighlight.fadeKeypress();
+        }
         simon.playerMove(arc);
       }
     })
@@ -609,12 +638,13 @@ $(function() {
   }
   
   function reset() {
+    anime.remove(".arc");
+    anime.remove(".arcFX");
+    anime.remove(".arcFXouter");
+    anime.remove(".arcOL");
     $(".startScreen").one("click", innerDisplay.chooseDifficulty)
     $(".startScreen").css("visibility", "visible"); 
     $(".container").css("visibility", "hidden"); 
-    startScreenOut.pause();
-    introSeq.pause();
-    startAnim.pause();
     startScreenOut.reset();
     introSeq.reset();
     startAnim.reset();
