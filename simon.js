@@ -10,74 +10,7 @@ $(function() {
   
   var chooseDifficultyString = '<div id="easy" class="flex-item">Easy</div><small class="flex-item">or</small><div id="hard" class="flex-item">Hard</div>'
   
-  var frequencies = [329.63,261.63,220,164.81];
-  var arcSound = []
-  
-  for (i = 0; i < 4; i++) {
-    arcSound[i] = new Pizzicato.Sound({ 
-      source: 'wave', 
-      options: {
-          frequency: frequencies[i]
-      }
-    });
-  }
-  
-  var introSound = new Pizzicato.Sound({
-    source: 'wave', 
-      options: {
-          type: 'triangle',
-          frequency: 50,
-          attack : 1,
-          release : 0.5
-      }
-  });
-  
-  
-  
-  //introSound.play();
-  var distortion = new Pizzicato.Effects.Distortion({
-    gain: 0.4
-  });
-  
-var ringModulator = new Pizzicato.Effects.RingModulator({
-    speed: 30,
-    distortion: 1,
-    mix: 0.5
-});
 
-  
-  var tremolo = new Pizzicato.Effects.Tremolo({
-    speed: 9,
-    depth: 0.8,
-    mix: 0.8
-  });
-
-  introSound.addEffect(distortion);
-  introSound.addEffect(tremolo);
-  
-  
-  function playIntroSound() {
-    introSound.play();
-    
-    var i = 0
-    function loop () {
-      if (i < 20) {
-        setTimeout(function() {
-          introSound.frequency = i * 10 + 50;
-          loop();
-          i++; 
-        }, 500)
-      }
-    }
-    loop();
-
-    setTimeout(function() {
-      introSound.stop();
-    }, 1000)
-  }
-
-
-  
   var arcEntrance = {  
     targets: '.arc',
     easing: 'easeOutCubic',
@@ -365,18 +298,22 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       moves = [];
       currentMove = 0;
       difficulty = mode;
-      console.log(difficulty);
       startAnim.run = function(anim) {
         if (anim.currentTime > 300) {
           $(".container").html("<strong>" + (moves.length + 1) + "</strong>");
         }
       }
+      setTimeout(function() {
+        sfx.playTransitionSound();
+      }, 500)
+      
       startAnim.complete = function() {
         anime(arcOutlineHide);
         highlightArc(0,400);
         highlightArc(1,400);
         highlightArc(2,400);
         highlightArc(3,400);
+        sfx.playArcSound(4, 100);
         setTimeout(function() {
           self.aiTurn()
         }, 800)
@@ -395,7 +332,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       function loop(){
         if (currentAiMove < moves.length) {
           highlightArc(moves[currentAiMove], delay * 0.9);
-          playSound(moves[currentAiMove], delay * 0.9);
+          sfx.playArcSound(moves[currentAiMove], delay * 0.9);
           if (currentAiMove == 0) {
             innnerArcHighlight.staticIn(moves[currentAiMove], delay / 2);
           } else {
@@ -409,6 +346,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
           setTimeout(function() {
             console.log("turn finished")
             anime(arcHighlightEffectOut);
+            sfx.playWhiteNoise();
             innnerArcHighlight.spinFade();
             setTimeout(self.playerTurn, 500)
           }, 300)
@@ -421,11 +359,9 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
     
     this.aiTurnRestart = function() {
       anime(containerOut);
-      console.log('restart')
       setTimeout(function() {
         anime(arcEntrance)
         innerDisplay.transitionlvl(level)
-        console.log("FIN")
         setTimeout(function(){self.aiTurn(true)}, 1000)
       }, 600)
     }
@@ -437,7 +373,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
     
     this.playerMove = function(arc) {
       if (arc != moves[currentMove]) {
-        console.log("WRONG")
+        sfx.playLoseSound();
         anime(arcFadeExplode);
         anime(arcOutlineShow);
         anime(containerOut);
@@ -462,6 +398,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
             anime(arcFxOuterWinIntro);
             setTimeout(function() {
               $("#hard").click(function () {
+                sfx.playAccentSound()
                 $("#hard").off();
                 reset();
               })
@@ -477,7 +414,6 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
           setTimeout(function() {
             anime(arcEntrance)
             innerDisplay.transitionlvl(level + 1)
-            console.log("FIN")
             setTimeout(self.aiTurn, 900)
           }, 600)
         }
@@ -504,7 +440,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
     $('.arcOL').click(function () {
       if(!simon.isLastMove()) {
         highlightArc(this.id.slice(-1), 200);
-        playSound(this.id.slice(-1), 250);
+        sfx.playArcSound(this.id.slice(-1), 200);
         innnerArcHighlight.highlight(this.id.slice(-1))
       }
       simon.playerMove(this.id.slice(-1));
@@ -515,7 +451,6 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       innnerArcHighlight.fade()
     })
     $(document).on('keypress', function (e) {
-      console.log(e.which);
       let arc = -1;
       switch(e.which) {
         case 73:
@@ -538,6 +473,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       if (arc != -1) {
         if(!simon.isLastMove()) {
           highlightArc(arc, 200);
+          sfx.playArcSound(arc, 200);
           innnerArcHighlight.highlight(arc)
           innnerArcHighlight.fadeKeypress();
         }
@@ -552,7 +488,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
     var self = this;
 
     this.chooseDifficulty = function() {
-      playIntroSound();
+      sfx.playIntroSound();
       //$(".container").html(chooseDifficultyString);
       startScreenOut.reset();
       startScreenOut.restart();
@@ -561,6 +497,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       setTimeout(function(){self.transition(chooseDifficultyString)}, 1000);
       introSeq.complete = function() {
         $("#easy, #hard").click(function () {
+          sfx.playAccentSound();
           $("#easy, #hard").off();
           simon.begin(this.id);
         })
@@ -577,6 +514,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
       anime(circleEntranceFx)
       anime(textEntrance)
       anime(arcHighlightEffectIn)
+      sfx.playTransitionSound();
     }
     
     this.transitionlvl = function(string) {
@@ -591,6 +529,7 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
             '<div id="hard" class="flex-item">Reset</div>', true)
       setTimeout(function() {
         $("#easy, #hard").click(function () {
+          sfx.playAccentSound();
           console.log("click")
           $("#easy, #hard").off();
           if (this.id == "easy") {
@@ -703,12 +642,173 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
     
   }
   
-  function playSound(arc, duration) {
-    arcSound[arc].play();
-    setTimeout(function () {
-      arcSound[arc].stop();
-    }, duration)
+  function Sfx() {
+  
+    var frequencies = [329.63, 261.63, 220, 164.81, 440.00];
+    var arcSound = []
+
+    for (i = 0; i < 5; i++) {
+      arcSound[i] = new Pizzicato.Sound({ 
+        source: 'wave', 
+        options: {
+            frequency: frequencies[i]
+        }
+      });
+    }
+
+    var introSound = new Pizzicato.Sound({
+      source: 'wave', 
+        options: {
+            type: 'sine',
+            frequency: 50,
+            attack : 1,
+            release : 0.5
+        }
+    });
+    
+    var loseSound = new Pizzicato.Sound({
+      source: 'wave', 
+        options: {
+            type: 'triangle',
+            frequency: 500,
+            attack : 0.1,
+            release : 0.7,
+        }
+    });
+    
+    var transitionSound = new Pizzicato.Sound({
+      source: 'wave', 
+        options: {
+            type: 'sine',
+            frequency: 500,
+            attack : 0.5,
+            release : 0.6,
+            volume : 1
+        }
+    });
+
+
+
+
+    var distortion = new Pizzicato.Effects.Distortion({
+      gain: 0.4
+    });
+
+    var reverb = new Pizzicato.Effects.Reverb({
+      time: 0.01,
+      decay: 0.01,
+      reverse: false,
+      mix: 0.5
+    });
+    
+    
+
+
+    var tremolo = new Pizzicato.Effects.Tremolo({
+      speed: 9,
+      depth: 0.8,
+      mix: 0.8
+    });
+
+    introSound.addEffect(distortion);
+    introSound.addEffect(tremolo);
+    transitionSound.addEffect(reverb);
+
+    var accentSound1 = new Pizzicato.Sound({
+      source: 'wave', 
+        options: {
+            type: 'sine',
+            frequency: 174.61,
+            attack : 0.01,
+            release : 0.01,
+            volume : 1
+        }
+    });
+    
+    var accentSound2 = new Pizzicato.Sound({
+      source: 'wave', 
+        options: {
+            type: 'triangle',
+            frequency: 349.23,
+            attack : 0.02,
+            release : 0.02,
+            volume : 1
+        }
+    });
+    
+    var whiteNoise = new Pizzicato.Sound(function(e) {
+
+      var output = e.outputBuffer.getChannelData(0);
+      for (var i = 0; i < e.outputBuffer.length; i++)
+          output[i] = Math.random() * 2 - 1;
+    });
+    whiteNoise.attack = 1
+    whiteNoise.release = 2
+    whiteNoise.volume = 0.1
+    
+
+    
+    this.playWhiteNoise = function() {
+      whiteNoise.play();
+      setTimeout(function () {
+        whiteNoise.stop();
+      }, 300)
+    }
+    
+    
+    this.playArcSound = function(arc, duration) {
+      arcSound[arc].play();
+      setTimeout(function () {
+        arcSound[arc].stop();
+      }, duration)
+    }
+  
+    this.playIntroSound = function() {
+      introSound.play();
+      setTimeout(function() {
+        introSound.stop();
+      }, 1000)
+    }
+    
+    this.playAccentSound = function() {
+      accentSound1.play();
+      accentSound2.play();
+      setTimeout(function() {
+        accentSound1.stop();
+        accentSound2.stop();
+      }, 30)
+    }
+    
+    this.playTransitionSound = function() {
+      transitionSound.play();
+      transitionSound.frequency = 123
+      transitionSound.volume = 1
+      setTimeout(function() {
+        transitionSound.stop();
+      }, 300)
+    }
+    
+    this.playLoseSound = function() {
+      loseSound.play();
+      loseSound.frequency = 200
+      var i = 0
+      function loop () {
+        if (i < 10) {
+          setTimeout(function() {
+            loseSound.frequency = i * -10 + 150;
+            loop();
+            i++; 
+          }, 40)
+        }
+      }
+      loop();
+
+      setTimeout(function() {
+        loseSound.stop();
+      }, 600)
+    }
   }
+
   
   function reset() {
     anime.remove(".arc");
@@ -726,12 +826,14 @@ var ringModulator = new Pizzicato.Effects.RingModulator({
   var simon = new Simon();
   var innnerArcHighlight = new InnnerArcHighlight();
   var innerDisplay = new InnerDisplay();
+  var sfx = new Sfx();
+  sfx.playWhiteNoise();
   
   
   
   debugAnim(arcHighlightEffectOut)
   $(".startScreen").one("click", innerDisplay.chooseDifficulty)
-  $(".reset").click(function(){reset()})
+  //$(".reset").click(function(){reset()})
   
   
   
