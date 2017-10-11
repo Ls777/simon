@@ -10,7 +10,74 @@ $(function() {
   
   var chooseDifficultyString = '<div id="easy" class="flex-item">Easy</div><small class="flex-item">or</small><div id="hard" class="flex-item">Hard</div>'
   
+  var frequencies = [329.63,261.63,220,164.81];
+  var arcSound = []
+  
+  for (i = 0; i < 4; i++) {
+    arcSound[i] = new Pizzicato.Sound({ 
+      source: 'wave', 
+      options: {
+          frequency: frequencies[i]
+      }
+    });
+  }
+  
+  var introSound = new Pizzicato.Sound({
+    source: 'wave', 
+      options: {
+          type: 'triangle',
+          frequency: 50,
+          attack : 1,
+          release : 0.5
+      }
+  });
+  
+  
+  
+  //introSound.play();
+  var distortion = new Pizzicato.Effects.Distortion({
+    gain: 0.4
+  });
+  
+var ringModulator = new Pizzicato.Effects.RingModulator({
+    speed: 30,
+    distortion: 1,
+    mix: 0.5
+});
 
+  
+  var tremolo = new Pizzicato.Effects.Tremolo({
+    speed: 9,
+    depth: 0.8,
+    mix: 0.8
+  });
+
+  introSound.addEffect(distortion);
+  introSound.addEffect(tremolo);
+  
+  
+  function playIntroSound() {
+    introSound.play();
+    
+    var i = 0
+    function loop () {
+      if (i < 20) {
+        setTimeout(function() {
+          introSound.frequency = i * 10 + 50;
+          loop();
+          i++; 
+        }, 500)
+      }
+    }
+    loop();
+
+    setTimeout(function() {
+      introSound.stop();
+    }, 1000)
+  }
+
+
+  
   var arcEntrance = {  
     targets: '.arc',
     easing: 'easeOutCubic',
@@ -285,7 +352,7 @@ $(function() {
   function Simon() {
     var mode;
     var level;
-    var levelMax = 3;
+    var levelMax = 20;
     var moves = [];
     var currentMove;
     var difficulty;
@@ -328,6 +395,7 @@ $(function() {
       function loop(){
         if (currentAiMove < moves.length) {
           highlightArc(moves[currentAiMove], delay * 0.9);
+          playSound(moves[currentAiMove], delay * 0.9);
           if (currentAiMove == 0) {
             innnerArcHighlight.staticIn(moves[currentAiMove], delay / 2);
           } else {
@@ -436,6 +504,7 @@ $(function() {
     $('.arcOL').click(function () {
       if(!simon.isLastMove()) {
         highlightArc(this.id.slice(-1), 200);
+        playSound(this.id.slice(-1), 250);
         innnerArcHighlight.highlight(this.id.slice(-1))
       }
       simon.playerMove(this.id.slice(-1));
@@ -483,6 +552,7 @@ $(function() {
     var self = this;
 
     this.chooseDifficulty = function() {
+      playIntroSound();
       //$(".container").html(chooseDifficultyString);
       startScreenOut.reset();
       startScreenOut.restart();
@@ -610,10 +680,6 @@ $(function() {
       self.fade();
     }
   }
-  
-  function chooseDifficulty() {
-    
-  }
 
   
   function highlightArc(arc, duration) {
@@ -635,6 +701,13 @@ $(function() {
     }, duration);
     //arcHighlightFx.restart();
     
+  }
+  
+  function playSound(arc, duration) {
+    arcSound[arc].play();
+    setTimeout(function () {
+      arcSound[arc].stop();
+    }, duration)
   }
   
   function reset() {
