@@ -199,10 +199,10 @@ body {
 
 
 
-#arc0 {transition: stroke 0.3s; transform-origin: right bottom;}
-#arc1 {transition: stroke 0.3s; transform-origin: left bottom;}
-#arc2 {transition: stroke 0.3s; transform-origin: left top;}
-#arc3 {transition: stroke 0.3s; transform-origin: right top;}
+#arc0 {transition: stroke 0.3s;}
+#arc1 {transition: stroke 0.3s;}
+#arc2 {transition: stroke 0.3s;}
+#arc3 {transition: stroke 0.3s;}
 
 #arc0, #arcOL0, #arcFX0, #arcFXouter0 {stroke: #3F9; }
 #arc1, #arcOL1, #arcFX1, #arcFXouter1 {stroke: #F39; }
